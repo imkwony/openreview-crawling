@@ -15,10 +15,11 @@ Currently available: **ICLR 2027**.
 ## How it works
 
 ```
-python -m crawler iclr 2027   ->   iclr-2027/papers.json   ->   iclr-2027/index.html (static)
+python -m crawler iclr 2027   ->   iclr-2027/papers.enc.json   ->   iclr-2027/index.html (static)
 ```
 
-`papers.json` is a list of rows: `[paperId, title, rank, rankByAI, aiWritten, accept]`.
+The data is a list of rows: `[paperId, title, rank, rankByAI, aiWritten, accept]`. It is
+published only in encrypted form (`papers.enc.json`); a plaintext copy stays in `.cache/`.
 
 | Column | Meaning |
 |---|---|
@@ -26,13 +27,18 @@ python -m crawler iclr 2027   ->   iclr-2027/papers.json   ->   iclr-2027/index.
 | Rank-by-AI, AI-Written?-by-AI | Reserved for model outputs. Empty until a model is chosen. |
 | Accept | check = accepted, x = rejected / withdrawn / desk-rejected, blank = no decision yet. |
 
+## Data encryption
+
+The data file is gzip + AES-256-GCM encrypted (key derived with PBKDF2-SHA256) and the
+browser decrypts it. `crawler/crypto.py` and `assets/table.js` must stay in sync.
+
 ## Layout
 
 ```
 index.html            landing page with links to each conference
 assets/table.{css,js} shared table UI used by every conference page
-iclr-2027/            one folder per conference-year: index.html + papers.json
-crawler/              OpenReview crawler (client, ranking, per-venue settings, CLI)
+iclr-2027/            one folder per conference-year: index.html + papers.enc.json
+crawler/              OpenReview crawler (client, ranking, encryption, per-venue settings, CLI)
 tests/                pytest tests
 ```
 
@@ -50,7 +56,8 @@ cp .env.example .env     # then fill in your OpenReview username and password
 - Credentials live only in `.env`, which is git-ignored.
 - The crawler waits a random 2-3 seconds before every API call.
 - Raw responses are cached in `.cache/` (git-ignored) so an interrupted run resumes;
-  use `--refresh` to fetch everything again.
+  use `--refresh` to fetch everything again. With a complete cache the command makes no
+  API calls and just rebuilds the encrypted file.
 
 Run the tests with `.venv/Scripts/python -m pytest`.
 
