@@ -1,5 +1,5 @@
 // Shared ranked-papers table. Each row of papers.json is:
-// [paperId, title, rank, rankByAI, aiWritten, accept]   (null = blank, accept: 1 = yes, 0 = no)
+// [paperId, title, rank, rankByAI, aiWritten, status]   (null = blank; status: A/R/W/D/U, see STATUS)
 (function () {
   const BATCH = 500;
   const dataUrl = document.currentScript.dataset.papers; // set on the page's <script> tag
@@ -7,6 +7,15 @@
   const $ = (sel) => document.querySelector(sel);
   const input = $("#q"), status = $("#status"), tbody = $("#rows"), more = $("#more");
   const COLS = { rank: 2, jev: 3, ai: 4, accept: 5 };
+  // Accept column status codes -> what to show. Order here is the sort order.
+  const STATUS = {
+    A: { text: "✓", cls: "ok", label: "Accepted" },
+    R: { text: "✗", cls: "no", label: "Rejected" },
+    W: { text: "🏳️", cls: "", label: "Withdrawn" },
+    D: { text: "🙅‍♂️🙅‍♀️", cls: "", label: "Desk-rejected" },
+    U: { text: "⏳", cls: "", label: "Under review" },
+  };
+  const STATUS_ORDER = Object.keys(STATUS);
 
   let papers = [], haystack = [], shown = [], next = 0, timer = 0;
   let sortKey = "rank", sortDir = 1;
@@ -14,7 +23,7 @@
   const sortValue = (row, key) => {
     const v = row[COLS[key]];
     if (v === null || v === undefined) return null;
-    return key === "accept" ? (v === 1 ? 0 : 1) : v; // accepted first, then rejected
+    return key === "accept" ? STATUS_ORDER.indexOf(v) : v;
   };
 
   const tie = (a, b) =>
@@ -46,10 +55,12 @@
     }
     const num = (v) => cell(v === null ? "" : String(v), "num");
     const accept = cell("", "accept");
-    if (row[5] === 1) {
-      accept.textContent = "✓"; accept.classList.add("ok"); accept.title = "Accepted";
-    } else if (row[5] === 0) {
-      accept.textContent = "✗"; accept.classList.add("no"); accept.title = "Not accepted";
+    const status = STATUS[row[5]];
+    if (status) {
+      accept.textContent = status.text;
+      if (status.cls) accept.classList.add(status.cls);
+      accept.title = status.label;
+      accept.setAttribute("aria-label", status.label);
     }
     tr.append(id, title, num(row[2]), num(row[3]), num(row[4]), accept);
     return tr;

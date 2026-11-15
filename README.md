@@ -25,7 +25,7 @@ published only in encrypted form (`papers.enc.json`); a plaintext copy stays in 
 |---|---|
 | Rank | Papers ordered by the average of reviewer ratings (highest first). Equal averages share a rank (1, 1, 3). Unreviewed papers are blank. |
 | Rank-by-AI, AI-Written?-by-AI | Reserved for model outputs. Empty until a model is chosen. |
-| Accept | check = accepted, x = rejected / withdrawn / desk-rejected, blank = no decision yet. |
+| Accept | Status per paper: ✓ accepted, ✗ rejected, 🏳️ withdrawn, 🙅‍♂️🙅‍♀️ desk-rejected, ⏳ under review. Stored as codes `A`/`R`/`W`/`D`/`U`. |
 
 ## Data encryption
 
