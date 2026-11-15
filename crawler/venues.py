@@ -13,6 +13,11 @@ class OpenReviewVenue:
     decision_name: str = "Decision"
 
     @property
+    def label(self):
+        """Display name, e.g. "ICLR 2027"."""
+        return f"{self.name} {self.year}"
+
+    @property
     def slug(self):
         return f"{self.name.lower()}-{self.year}"
 

@@ -1,6 +1,7 @@
 """Usage: python -m crawler iclr 2027 [--refresh]"""
 import argparse
 
+from .page import write_page
 from .build import build_rows, crawl, site_password, write_papers
 from .venues import VENUES
 
@@ -17,6 +18,7 @@ def main():
     submissions, reviews, decisions = crawl(venue, refresh=args.refresh)
     rows = build_rows(venue, submissions, reviews, decisions)
     out = write_papers(venue, rows, password)
+    write_page(venue)
     reviewed = sum(1 for r in rows if r[2] is not None)
     print(f"{len(rows)} papers ({reviewed} ranked) -> {out}")
 
