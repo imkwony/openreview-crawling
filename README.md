@@ -4,7 +4,7 @@ Ranked submission lists for ML conferences, served as a static site on GitHub Pa
 Each conference page is a searchable, sortable table of papers with their rank (from
 reviewer ratings) and whether they were accepted.
 
-Currently available: **ICLR 2027**.
+Currently available: **ICLR 2027**, **ICLR 2026**.
 
 ## Credits
 
@@ -25,7 +25,7 @@ published only in encrypted form (`papers.enc.json`); a plaintext copy stays in 
 |---|---|
 | Rank | Papers ordered by the average of reviewer ratings (highest first). Equal averages share a rank (1, 1, 3). Unreviewed papers are blank. |
 | Rank-by-AI, AI-Written?-by-AI | Reserved for model outputs. Empty until a model is chosen. |
-| Accept | Status per paper: ✓ accepted, ✗ rejected, 🏳️ withdrawn, 🙅‍♂️🙅‍♀️ desk-rejected, ⏳ under review. Stored as codes `A`/`R`/`W`/`D`/`U`. |
+| Accept | Status per paper: ✅ accepted, ❌ rejected, 🏳️ withdrawn, 🙅‍♂️🙅‍♀️ desk-rejected, ⏳ under review. Stored as codes `A`/`R`/`W`/`D`/`U`. |
 
 ## Data encryption
 
@@ -63,9 +63,11 @@ Run the tests with `.venv/Scripts/python -m pytest`.
 
 ## Add another conference
 
-1. Add a venue in `crawler/venues.py` and register it in `VENUES`.
-2. Copy `iclr-2027/index.html` to `<conference>-<year>/index.html` and adjust the title.
-3. Run `python -m crawler <conference> <year>`.
+1. New year of a supported conference: no code change. A new conference: add a venue in
+   `crawler/venues.py` and register it in `VENUES`.
+2. Add `SITE_PASSWORD_<NAME>_<YEAR>` to `.env` (see `.env.example`).
+3. Run `python -m crawler <conference> <year>`. It writes `<conference>-<year>/papers.enc.json`
+   and `<conference>-<year>/index.html` (rendered from `crawler/templates/conference.html`).
 4. Turn its greyed-out entry in the root `index.html` into a link.
 
 ## Deploy

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ICLR 2026 Submissions Ranked | OpenReview Crawling</title>
+    <meta name="description" content="ICLR 2026 submissions ranked by the average of reviewer ratings collected from OpenReview." />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <script src="../assets/table.js" data-papers="./papers.enc.json" defer></script>
+  </head>
+  <body>
+    <header><a href="../">OpenReview Crawling</a> / ICLR 2026</header>
+    <main>
+      <h1>ICLR 2026 Submissions Ranked</h1>
+      <p class="muted">Ratings are collected from public OpenReview reviews. Rank is not an official result.</p>
+      <form id="gate" class="gate">
+        <label for="pw">Password</label>
+        <input id="pw" type="password" autocomplete="off" required autofocus />
+        <button type="submit">Enter</button>
+        <p id="gate-msg" role="alert"></p>
+      </form>
+      <div id="content" hidden>
+      <label class="search">
+        <span class="visually-hidden">Search papers</span>
+        <input id="q" type="search" placeholder="Search by title or paper ID" autocomplete="off" disabled />
+      </label>
+      <p id="status" class="muted" role="status">Loading papers…</p>
+      <table>
+        <thead>
+          <tr>
+            <th class="id">Paper ID</th>
+            <th>Title</th>
+            <th class="num" aria-sort="ascending">
+              <button type="button" class="sort" data-key="rank">Rank<span class="arrow" aria-hidden="true"></span></button>
+              <span class="info">
+                <button type="button" class="info-btn" aria-label="What is the rank?" aria-expanded="false">i</button>
+                <span class="tip" role="tooltip">Papers are ordered by the average of their reviewers' ratings, highest first. Papers with the same average share a rank and are listed alphabetically. Papers without reviews have no rank.</span>
+              </span>
+            </th>
+            <th class="num" aria-sort="none">
+              <button type="button" class="sort" data-key="jev">Rank-by-AI<span class="arrow" aria-hidden="true"></span></button>
+              <span class="info">
+                <button type="button" class="info-btn" aria-label="What is Rank-by-AI?" aria-expanded="false">i</button>
+                <span class="tip" role="tooltip">Reserved for a model's predicted ranking. Not computed yet, so it is empty.</span>
+              </span>
+            </th>
+            <th class="num" aria-sort="none">
+              <button type="button" class="sort" data-key="ai">AI-Written?-by-AI<span class="arrow" aria-hidden="true"></span></button>
+              <span class="info">
+                <button type="button" class="info-btn" aria-label="What is AI-Written?-by-AI?" aria-expanded="false">i</button>
+                <span class="tip" role="tooltip">Reserved for a classifier's estimate that the text was written by AI. Not computed yet, so it is empty.</span>
+              </span>
+            </th>
+            <th class="accept" aria-sort="none">
+              <button type="button" class="sort" data-key="accept">Accept<span class="arrow" aria-hidden="true"></span></button>
+              <span class="info">
+                <button type="button" class="info-btn" aria-label="What is Accept?" aria-expanded="false">i</button>
+                <span class="tip" role="tooltip">&#9989; accepted, &#10060; rejected, &#127987;&#65039; withdrawn, &#128581;&#8205;&#9794;&#65039;&#128581;&#8205;&#9792;&#65039; desk-rejected, &#9203; under review (no decision yet).</span>
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="more" aria-hidden="true"></div>
+      </div>
+    </main>
+  </body>
+</html>
