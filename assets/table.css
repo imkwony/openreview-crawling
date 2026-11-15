@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
-  --bg: #E2D7CF; --fg: #1a1a1a; --muted: #57534e; --line: #c9bcb2; --accent: #1e40af;
-  --head: #d6c9bf;
+  --bg: #D5D7CF; --fg: #1a1a1a; --muted: #4b5049; --line: #a9aca2; --accent: #1e40af;
+  --head: var(--bg);
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg);
