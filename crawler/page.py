@@ -5,7 +5,7 @@ TEMPLATE = Path(__file__).resolve().parent / "templates" / "conference.html"
 
 
 def render_page(venue):
-    return TEMPLATE.read_text(encoding="utf-8").replace("{{label}}", venue.label)
+    return TEMPLATE.read_text(encoding="utf-8").replace("{{label}}", venue.label).replace("{{note}}", venue.note)
 
 
 def write_page(venue, root=None):

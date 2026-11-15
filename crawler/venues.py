@@ -11,6 +11,7 @@ class OpenReviewVenue:
     year: int
     review_name: str = "Official_Review"
     decision_name: str = "Decision"
+    note: str = ""  # shown on the page when OpenReview only exposes part of the data
 
     @property
     def label(self):
@@ -52,7 +53,17 @@ def ICLR(year):
     return OpenReviewVenue(prefix="ICLR.cc", name="ICLR", year=year)
 
 
-VENUES = {"iclr": ICLR}
+def NeurIPS(year):
+    # NeurIPS keeps submissions private: only accepted papers, and rejected papers
+    # whose authors opted in, are public. Make the page say so.
+    return OpenReviewVenue(
+        prefix="NeurIPS.cc", name="NeurIPS", year=year,
+        note=" Only accepted papers and rejected papers whose authors opted in to"
+             " public release are listed, so this is not every submission.",
+    )
+
+
+VENUES = {"iclr": ICLR, "neurips": NeurIPS}
 
 
 def accept_flag(venue, venueid, decision):

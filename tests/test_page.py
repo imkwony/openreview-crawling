@@ -19,3 +19,13 @@ def test_other_year_page_uses_its_own_label_only():
     assert "ICLR 2026 Submissions Ranked" in html
     assert "2027" not in html
     assert "{{" not in html
+
+
+def test_neurips_page_shows_label_and_partial_data_note():
+    from crawler.venues import NeurIPS
+
+    html = render_page(NeurIPS(2025))
+    assert "NeurIPS 2025 Submissions Ranked" in html
+    assert "opted in" in html
+    assert "ICLR" not in html
+    assert "{{" not in html
