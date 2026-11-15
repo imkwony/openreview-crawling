@@ -1,3 +1,4 @@
 openreview-py
 python-dotenv
+cryptography
 pytest
