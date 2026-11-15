@@ -54,6 +54,23 @@ def test_neurips_status_and_decision_text():
 def test_registry_and_partial_data_note():
     from crawler.venues import NeurIPS, VENUES
 
-    assert set(VENUES) == {"iclr", "neurips"}
+    assert set(VENUES) == {"iclr", "neurips", "icml"}
     assert "opted in" in NeurIPS(2025).note  # NeurIPS only publishes some papers
     assert V.note == ""  # ICLR publishes everything: no note
+
+
+def test_icml_venue_uses_its_own_rating_field_and_partial_note():
+    from crawler.venues import ICML
+
+    m = ICML(2026)
+    assert m.venue_id == "ICML.cc/2026/Conference"
+    assert m.slug == "icml-2026"
+    assert m.label == "ICML 2026"
+    assert m.rating_field == "overall_recommendation"
+    assert "opted in" in m.note
+    assert accept_flag(m, venueid="ICML.cc/2026/Conference", decision=None) == "A"
+    assert accept_flag(m, venueid="ICML.cc/2026/Conference/Rejected_Submission", decision=None) == "R"
+
+
+def test_default_rating_field_is_rating():
+    assert V.rating_field == "rating"

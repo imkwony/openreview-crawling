@@ -63,6 +63,11 @@ def _cached(path, refresh, produce):
     return data
 
 
+def review_rating(venue, content):
+    """The review's score, read from the field this venue's review form uses."""
+    return _value(content, venue.rating_field)
+
+
 def crawl(venue, refresh=False):
     """Fetch submissions, reviews and decisions (cached in .cache/ so a rerun resumes)."""
     cache = ROOT / ".cache" / venue.slug
@@ -89,7 +94,7 @@ def crawl(venue, refresh=False):
         return out
 
     def fetch_reviews():
-        return [{"forum": n.forum, "rating": _value(n.content, "rating")}
+        return [{"forum": n.forum, "rating": review_rating(venue, n.content)}
                 for n in notes(venue.review_invitation, parent=True)]
 
     def fetch_decisions():

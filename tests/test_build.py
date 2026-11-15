@@ -1,4 +1,4 @@
-from crawler.build import build_rows, normalize_keywords
+from crawler.build import build_rows, normalize_keywords, review_rating
 from crawler.venues import ICLR
 
 V = ICLR(2027)
@@ -74,3 +74,12 @@ def test_normalize_keywords():
     assert normalize_keywords("x, y ,, z") == ["x", "y", "z"]
     assert normalize_keywords(None) == []
     assert normalize_keywords(42) == []
+
+
+def test_review_rating_reads_the_venue_specific_field():
+    from crawler.venues import ICML
+
+    content = {"rating": {"value": 3}, "overall_recommendation": {"value": 5}}
+    assert review_rating(V, content) == 3
+    assert review_rating(ICML(2026), content) == 5
+    assert review_rating(ICML(2026), {}) is None

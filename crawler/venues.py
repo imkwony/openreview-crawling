@@ -11,6 +11,7 @@ class OpenReviewVenue:
     year: int
     review_name: str = "Official_Review"
     decision_name: str = "Decision"
+    rating_field: str = "rating"  # name of the score field in this venue's review form
     note: str = ""  # shown on the page when OpenReview only exposes part of the data
 
     @property
@@ -53,17 +54,24 @@ def ICLR(year):
     return OpenReviewVenue(prefix="ICLR.cc", name="ICLR", year=year)
 
 
+# Some venues keep submissions private: only accepted papers, and rejected papers
+# whose authors opted in, are public. Make the page say so.
+_OPT_IN_NOTE = (
+    " Only accepted papers and rejected papers whose authors opted in to"
+    " public release are listed, so this is not every submission."
+)
+
+
 def NeurIPS(year):
-    # NeurIPS keeps submissions private: only accepted papers, and rejected papers
-    # whose authors opted in, are public. Make the page say so.
-    return OpenReviewVenue(
-        prefix="NeurIPS.cc", name="NeurIPS", year=year,
-        note=" Only accepted papers and rejected papers whose authors opted in to"
-             " public release are listed, so this is not every submission.",
-    )
+    return OpenReviewVenue(prefix="NeurIPS.cc", name="NeurIPS", year=year, note=_OPT_IN_NOTE)
 
 
-VENUES = {"iclr": ICLR, "neurips": NeurIPS}
+def ICML(year):
+    return OpenReviewVenue(prefix="ICML.cc", name="ICML", year=year,
+                           rating_field="overall_recommendation", note=_OPT_IN_NOTE)
+
+
+VENUES = {"iclr": ICLR, "neurips": NeurIPS, "icml": ICML}
 
 
 def accept_flag(venue, venueid, decision):
