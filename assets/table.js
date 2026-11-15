@@ -6,8 +6,9 @@
   const FORUM = "https://openreview.net/forum?id=";
   const $ = (sel) => document.querySelector(sel);
   const input = $("#q"), status = $("#status"), tbody = $("#rows"), more = $("#more");
-  const COLS = { rank: 2, jev: 3, ai: 4, accept: 5 };
-  // Accept column status codes -> what to show. Order here is the sort order.
+  const COLS = { rank: 2, jev: 3, ai: 4 };
+  const filterBtn = $("#accept-filter-btn"), filterMenu = $("#accept-filter");
+  // Accept column status codes -> what to show. Order here is the filter menu order.
   const STATUS = {
     A: { text: "✅", label: "Accepted" },
     R: { text: "❌", label: "Rejected" },
@@ -19,11 +20,13 @@
 
   let papers = [], haystack = [], shown = [], next = 0, timer = 0;
   let sortKey = "rank", sortDir = 1;
+  let available = [], selected = new Set(); // statuses present in the data / currently shown
+
+  const isAll = () => available.every((c) => selected.has(c));
 
   const sortValue = (row, key) => {
     const v = row[COLS[key]];
-    if (v === null || v === undefined) return null;
-    return key === "accept" ? STATUS_ORDER.indexOf(v) : v;
+    return v === null || v === undefined ? null : v;
   };
 
   const tie = (a, b) =>
@@ -76,7 +79,9 @@
 
   function refresh() {
     const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-    shown = papers.filter((_, i) => words.every((w) => haystack[i].includes(w)));
+    const everyStatus = isAll();
+    shown = papers.filter((p, i) =>
+      (everyStatus || selected.has(p[5])) && words.every((w) => haystack[i].includes(w)));
     shown.sort(compare);
     tbody.textContent = "";
     next = 0;
@@ -94,15 +99,70 @@
     refresh();
   }));
 
+  // ---- Accept status filter ---------------------------------------------------
+  const closeMenu = () => { filterMenu.hidden = true; filterBtn.setAttribute("aria-expanded", "false"); };
+
+  function buildFilterMenu() {
+    const counts = {};
+    for (const p of papers) counts[p[5]] = (counts[p[5]] || 0) + 1;
+    available = STATUS_ORDER.filter((c) => counts[c]); // skip statuses this conference has none of
+    selected = new Set(available);
+    filterMenu.textContent = "";
+    const boxes = [];
+    for (const code of available) {
+      const label = document.createElement("label");
+      label.className = "filter-item";
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.checked = true;
+      box.addEventListener("change", () => {
+        if (box.checked) selected.add(code); else selected.delete(code);
+        applyFilter();
+      });
+      boxes.push([code, box]);
+      label.append(box, " " + STATUS[code].text + " " + STATUS[code].label + " (" + counts[code].toLocaleString() + ")");
+      filterMenu.appendChild(label);
+    }
+    const all = document.createElement("button");
+    all.type = "button";
+    all.className = "filter-all";
+    all.textContent = "Show all";
+    all.addEventListener("click", () => {
+      selected = new Set(available);
+      boxes.forEach(([, box]) => { box.checked = true; });
+      applyFilter();
+    });
+    filterMenu.appendChild(all);
+    filterBtn.classList.remove("active");
+  }
+
+  function applyFilter() {
+    filterBtn.classList.toggle("active", !isAll());
+    refresh();
+  }
+
+  filterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = filterMenu.hidden;
+    closeTips();
+    filterMenu.hidden = !open;
+    filterBtn.setAttribute("aria-expanded", String(open));
+  });
+
   const closeTips = () =>
     document.querySelectorAll(".info-btn").forEach((b) => b.setAttribute("aria-expanded", "false"));
   document.querySelectorAll(".info-btn").forEach((btn) => btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const open = btn.getAttribute("aria-expanded") === "true";
     closeTips();
+    closeMenu();
     btn.setAttribute("aria-expanded", String(!open));
   }));
-  document.addEventListener("click", closeTips);
+  document.addEventListener("click", (e) => {
+    closeTips();
+    if (!filterMenu.contains(e.target)) closeMenu();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeTips(); closeMenu(); } });
 
   new IntersectionObserver((entries) => {
     if (entries.some((e) => e.isIntersecting) && next < shown.length) renderMore();
@@ -135,6 +195,7 @@
   function unlock(data) {
     papers = data;
     haystack = papers.map((p) => (p[1] + " " + p[0]).toLowerCase());
+    buildFilterMenu();
     gate.hidden = true;
     content.hidden = false;
     input.disabled = false;

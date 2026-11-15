@@ -51,12 +51,13 @@
                 <span class="tip" role="tooltip">Reserved for a classifier's estimate that the text was written by AI. Not computed yet, so it is empty.</span>
               </span>
             </th>
-            <th class="accept" aria-sort="none">
-              <button type="button" class="sort" data-key="accept">Accept<span class="arrow" aria-hidden="true"></span></button>
+            <th class="accept">
+              <button type="button" class="filter-btn" id="accept-filter-btn" aria-haspopup="true" aria-expanded="false" aria-controls="accept-filter">Accept<span class="funnel" aria-hidden="true"></span></button>
               <span class="info">
                 <button type="button" class="info-btn" aria-label="What is Accept?" aria-expanded="false">i</button>
-                <span class="tip" role="tooltip">&#9989; accepted, &#10060; rejected, &#127987;&#65039; withdrawn, &#128581;&#8205;&#9794;&#65039;&#128581;&#8205;&#9792;&#65039; desk-rejected, &#9203; under review (no decision yet).</span>
+                <span class="tip" role="tooltip">Click Accept to show only the statuses you pick. &#9989; accepted, &#10060; rejected, &#127987;&#65039; withdrawn, &#128581;&#8205;&#9794;&#65039;&#128581;&#8205;&#9792;&#65039; desk-rejected, &#9203; under review (no decision yet).</span>
               </span>
+              <div id="accept-filter" class="filter-menu" role="group" aria-label="Filter by Accept status" hidden></div>
             </th>
           </tr>
         </thead>
