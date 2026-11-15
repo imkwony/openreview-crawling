@@ -2,6 +2,7 @@
 // [paperId, title, rank, rankByAI, aiWritten, accept]   (null = blank, accept: 1 = yes, 0 = no)
 (function () {
   const BATCH = 500;
+  const dataUrl = document.currentScript.dataset.papers; // set on the page's <script> tag
   const FORUM = "https://openreview.net/forum?id=";
   const $ = (sel) => document.querySelector(sel);
   const input = $("#q"), status = $("#status"), tbody = $("#rows"), more = $("#more");
@@ -97,14 +98,57 @@
     if (entries.some((e) => e.isIntersecting) && next < shown.length) renderMore();
   }, { rootMargin: "600px" }).observe(more);
 
-  // The page passes the data file's address (with a version tag) via data-papers.
-  fetch(document.currentScript.dataset.papers)
-    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then((data) => {
-      papers = data;
-      haystack = papers.map((p) => (p[1] + " " + p[0]).toLowerCase());
-      input.disabled = false;
-      refresh();
-    })
-    .catch(() => { status.textContent = "Could not load the papers. Please reload the page."; });
+  // ---- Password gate -------------------------------------------------------
+  // papers.enc.json is gzip + AES-256-GCM, key = PBKDF2-SHA256(normalized password).
+  // Keep in sync with crawler/crypto.py.
+  const gate = $("#gate"), content = $("#content"), pw = $("#pw"), gateMsg = $("#gate-msg");
+  const KEY = "openreview-crawling:pw:" + dataUrl;
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  const normalize = (s) => s.toLowerCase().split(/\s+/).filter(Boolean).join(" ");
+
+  async function decrypt(enc, password) {
+    const material = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(normalize(password)), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: b64(enc.salt), iterations: enc.iter, hash: "SHA-256" },
+      material, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    const sealed = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(enc.iv) }, key, b64(enc.data));
+    const text = await new Response(
+      new Blob([sealed]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    return JSON.parse(text);
+  }
+
+  // Start downloading right away so unlocking is quick once the password is typed.
+  const encrypted = fetch(dataUrl).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  encrypted.catch(() => {});
+
+  function unlock(data) {
+    papers = data;
+    haystack = papers.map((p) => (p[1] + " " + p[0]).toLowerCase());
+    gate.hidden = true;
+    content.hidden = false;
+    input.disabled = false;
+    refresh();
+  }
+
+  async function tryPassword(password, silent) {
+    if (!silent) gateMsg.textContent = "";
+    let enc;
+    try { enc = await encrypted; }
+    catch { if (!silent) gateMsg.textContent = "Could not load the data. Please reload the page."; return false; }
+    let data;
+    try { data = await decrypt(enc, password); }
+    catch { if (!silent) gateMsg.textContent = "Wrong password."; return false; }
+    try { sessionStorage.setItem(KEY, password); } catch (e) { /* storage unavailable: just ask again next time */ }
+    unlock(data);
+    return true;
+  }
+
+  gate.addEventListener("submit", (e) => { e.preventDefault(); tryPassword(pw.value, false); });
+
+  // Remember the password for this browser tab only, so a refresh doesn't ask again.
+  try {
+    const saved = sessionStorage.getItem(KEY);
+    if (saved) tryPassword(saved, true).then((ok) => { if (!ok) sessionStorage.removeItem(KEY); });
+  } catch (e) { /* storage unavailable */ }
 })();
