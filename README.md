@@ -4,11 +4,14 @@ Ranked submission lists for ML conferences, served as a static site on GitHub Pa
 Each conference page is a searchable, sortable table of papers with their rank (from
 reviewer ratings) and whether they were accepted.
 
-Currently available: **ICLR 2027**, **ICLR 2026**, **NeurIPS 2025**.
+Currently available: **ICLR 2027**, **ICLR 2026**, **ICML 2026**, **NeurIPS 2025**.
 
-NeurIPS keeps submissions private, so its page lists only accepted papers and rejected
-papers whose authors opted in to public release (the page says so). NeurIPS 2026 has no
-public data on OpenReview yet.
+NeurIPS and ICML keep submissions private, so their pages list only accepted papers and
+rejected papers whose authors opted in to public release (each page says so). NeurIPS 2026
+has no public data on OpenReview yet.
+
+Review forms differ per venue: the score field name is set per venue in
+`crawler/venues.py` (`rating_field`, e.g. ICML uses `overall_recommendation`).
 
 ## Credits
 
