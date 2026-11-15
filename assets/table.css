@@ -1,10 +1,7 @@
 :root {
+  color-scheme: light;
   --bg: #7B8794; --fg: #0b0f19; --muted: #172030; --line: #5f6b78; --accent: #081a3d;
-  --ok: #05400f; --no: #650c0c; --head: #6d7986;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #111418; --fg: #e5e7eb; --muted: #9ca3af; --line: #2a2f37; --accent: #60a5fa;
-    --ok: #4ade80; --no: #f87171; --head: #181c22; }
+  --head: #6d7986;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg);
@@ -22,19 +19,18 @@ a { color: var(--accent); }
   border: 1px solid var(--line); border-radius: 6px; min-width: 220px; }
 .gate button { padding: 8px 16px; font: inherit; color: #fff; background: var(--accent);
   border: 0; border-radius: 6px; cursor: pointer; }
-.gate p { flex-basis: 100%; margin: 0; min-height: 1.5em; color: var(--no); }
+.gate p { flex-basis: 100%; margin: 0; min-height: 1.5em; color: var(--fg); font-weight: 600; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .search input { width: 100%; max-width: 420px; padding: 8px 10px; font: inherit; color: inherit;
   background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
 .search input:disabled { opacity: .5; }
+input::placeholder { color: var(--muted); opacity: .8; }
 table { width: 100%; border-collapse: collapse; margin-top: 8px; }
 th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 thead th { background: var(--head); position: sticky; top: 0; white-space: nowrap; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.id { font-family: ui-monospace, Consolas, monospace; font-size: .85em; white-space: nowrap; }
 td.accept, th.accept { text-align: center; }
-.ok { color: var(--ok); font-weight: 700; }
-.no { color: var(--no); font-weight: 700; }
 .sort { all: unset; cursor: pointer; font-weight: 600; }
 .sort:focus-visible, .info-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .arrow::after { content: " \2195"; color: var(--muted); }

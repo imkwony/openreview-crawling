@@ -9,11 +9,11 @@
   const COLS = { rank: 2, jev: 3, ai: 4, accept: 5 };
   // Accept column status codes -> what to show. Order here is the sort order.
   const STATUS = {
-    A: { text: "✓", cls: "ok", label: "Accepted" },
-    R: { text: "✗", cls: "no", label: "Rejected" },
-    W: { text: "🏳️", cls: "", label: "Withdrawn" },
-    D: { text: "🙅‍♂️🙅‍♀️", cls: "", label: "Desk-rejected" },
-    U: { text: "⏳", cls: "", label: "Under review" },
+    A: { text: "✅", label: "Accepted" },
+    R: { text: "❌", label: "Rejected" },
+    W: { text: "🏳️", label: "Withdrawn" },
+    D: { text: "🙅‍♂️🙅‍♀️", label: "Desk-rejected" },
+    U: { text: "⏳", label: "Under review" },
   };
   const STATUS_ORDER = Object.keys(STATUS);
 
@@ -58,7 +58,6 @@
     const status = STATUS[row[5]];
     if (status) {
       accept.textContent = status.text;
-      if (status.cls) accept.classList.add(status.cls);
       accept.title = status.label;
       accept.setAttribute("aria-label", status.label);
     }
