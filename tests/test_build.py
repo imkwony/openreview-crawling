@@ -38,3 +38,32 @@ def test_ties_listed_alphabetically_and_decision_text_used():
     assert [r[0] for r in rows] == ["a", "b"]  # same rank 1, alphabetical
     assert rows[0][2] == rows[1][2] == 1
     assert rows[0][5] == 1 and rows[1][5] is None
+
+
+def test_write_papers_outputs_only_encrypted_file_in_site_folder(tmp_path):
+    import json
+
+    from crawler.build import write_papers
+    from crawler.crypto import decrypt_payload
+
+    rows = [["p1", "Secret Title", 1, None, None, None]]
+    out = write_papers(V, rows, "Test Secret", root=tmp_path)
+    assert out == tmp_path / "iclr-2027" / "papers.enc.json"
+    assert not (tmp_path / "iclr-2027" / "papers.json").exists()
+    assert "Secret Title" not in out.read_text(encoding="utf-8")
+    assert json.loads(decrypt_payload(json.loads(out.read_text(encoding="utf-8")), "Test Secret")) == rows
+    # plaintext copy stays in the git-ignored cache
+    assert (tmp_path / ".cache" / "iclr-2027" / "papers.json").exists()
+
+
+def test_site_password_comes_from_env(monkeypatch):
+    import pytest
+
+    from crawler import build
+
+    monkeypatch.setattr(build, "load_dotenv", lambda *a, **k: None)
+    monkeypatch.setenv("SITE_PASSWORD_ICLR_2027", "from env")
+    assert build.site_password(V) == "from env"
+    monkeypatch.delenv("SITE_PASSWORD_ICLR_2027")
+    with pytest.raises(SystemExit):
+        build.site_password(V)
