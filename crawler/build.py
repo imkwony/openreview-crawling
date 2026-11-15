@@ -54,9 +54,12 @@ def crawl(venue, refresh=False):
     cache = ROOT / ".cache" / venue.slug
     client = login()
 
-    def notes(invitation, **extra):
+    def notes(invitation, parent=False, **extra):
+        # Reviews and decisions live under per-paper invitations (Submission<N>/-/Official_Review),
+        # so they are found through their shared parent invitation, not by exact match.
+        key = "parent_invitations" if parent else "invitation"
         return paginate(lambda limit, offset: client.get_notes(
-            invitation=invitation, limit=limit, offset=offset, **extra))
+            **{key: invitation}, limit=limit, offset=offset, **extra))
 
     def fetch_submissions():
         out = []
@@ -69,11 +72,11 @@ def crawl(venue, refresh=False):
 
     def fetch_reviews():
         return [{"forum": n.forum, "rating": _value(n.content, "rating")}
-                for n in notes(venue.review_invitation)]
+                for n in notes(venue.review_invitation, parent=True)]
 
     def fetch_decisions():
         return [{"forum": n.forum, "decision": _value(n.content, "decision")}
-                for n in notes(venue.decision_invitation)]
+                for n in notes(venue.decision_invitation, parent=True)]
 
     print("Fetching submissions...", flush=True)
     submissions = _cached(cache / "submissions.json", refresh, fetch_submissions)
