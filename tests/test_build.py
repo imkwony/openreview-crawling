@@ -1,4 +1,4 @@
-from crawler.build import build_rows
+from crawler.build import build_rows, normalize_keywords
 from crawler.venues import ICLR
 
 V = ICLR(2027)
@@ -7,9 +7,9 @@ SUB = "ICLR.cc/2027/Conference/Submission"
 
 def test_build_rows_shape_and_values():
     submissions = [
-        {"id": "p1", "title": "Beta", "venueid": V.venue_id},
-        {"id": "p2", "title": "Alpha", "venueid": SUB},
-        {"id": "p3", "title": "Gamma", "venueid": f"{V.venue_id}/Rejected_Submission"},
+        {"id": "p1", "title": "Beta", "venueid": V.venue_id, "keywords": ["rl", "robotics"]},
+        {"id": "p2", "title": "Alpha", "venueid": SUB},  # no keywords field at all
+        {"id": "p3", "title": "Gamma", "venueid": f"{V.venue_id}/Rejected_Submission", "keywords": "nlp, agents"},
     ]
     reviews = [
         {"forum": "p1", "rating": "8: accept"},
@@ -19,11 +19,11 @@ def test_build_rows_shape_and_values():
     ]
     decisions = []
     rows = build_rows(V, submissions, reviews, decisions)
-    # [id, title, rank, rank_by_ai, ai_written, accept]
+    # [id, title, rank, rank_by_ai, ai_written, accept, keywords]
     assert rows == [
-        ["p1", "Beta", 1, None, None, "A"],
-        ["p2", "Alpha", 2, None, None, "U"],
-        ["p3", "Gamma", None, None, None, "R"],
+        ["p1", "Beta", 1, None, None, "A", ["rl", "robotics"]],
+        ["p2", "Alpha", 2, None, None, "U", []],
+        ["p3", "Gamma", None, None, None, "R", ["nlp", "agents"]],
     ]
 
 
@@ -67,3 +67,10 @@ def test_site_password_comes_from_env(monkeypatch):
     monkeypatch.delenv("SITE_PASSWORD_ICLR_2027")
     with pytest.raises(SystemExit):
         build.site_password(V)
+
+
+def test_normalize_keywords():
+    assert normalize_keywords(["a", " b ", "", None]) == ["a", "b"]
+    assert normalize_keywords("x, y ,, z") == ["x", "y", "z"]
+    assert normalize_keywords(None) == []
+    assert normalize_keywords(42) == []

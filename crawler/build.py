@@ -13,8 +13,17 @@ from .venues import accept_flag
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def normalize_keywords(value):
+    """Keywords as a clean list of strings (OpenReview gives a list; tolerate a comma string)."""
+    if isinstance(value, str):
+        value = value.split(",")
+    if not isinstance(value, list):
+        return []
+    return [k.strip() for k in value if isinstance(k, str) and k.strip()]
+
+
 def build_rows(venue, submissions, reviews, decisions):
-    """Rows: [id, title, rank, rank_by_ai, ai_written, accept]; the AI columns stay null."""
+    """Rows: [id, title, rank, rank_by_ai, ai_written, accept, keywords]; the AI columns stay null."""
     known = {s["id"] for s in submissions}
     ratings = {s["id"]: [] for s in submissions}
     for review in reviews:
@@ -32,6 +41,7 @@ def build_rows(venue, submissions, reviews, decisions):
             None,
             None,
             accept_flag(venue, s.get("venueid"), decision_text.get(s["id"])),
+            normalize_keywords(s.get("keywords")),
         ]
         for s in submissions
     ]
@@ -72,7 +82,8 @@ def crawl(venue, refresh=False):
         out = []
         for n in notes(venue.submission_invitation, sort="number:asc"):
             out.append({"id": n.id, "title": _value(n.content, "title") or "",
-                        "venueid": _value(n.content, "venueid")})
+                        "venueid": _value(n.content, "venueid"),
+                        "keywords": normalize_keywords(_value(n.content, "keywords"))})
             if len(out) % 5000 == 0:
                 print(f"  submissions: {len(out)}", flush=True)
         return out
