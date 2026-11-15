@@ -1,5 +1,6 @@
 // Shared ranked-papers table. Each row of papers.json is:
-// [paperId, title, rank, rankByAI, aiWritten, status]   (null = blank; status: A/R/W/D/U, see STATUS)
+// [paperId, title, rank, rankByAI, aiWritten, status, keywords]
+// (null = blank; status: A/R/W/D/U, see STATUS; keywords: array of strings, searched with the title)
 (function () {
   const BATCH = 500;
   const dataUrl = document.currentScript.dataset.papers; // set on the page's <script> tag
@@ -64,7 +65,14 @@
       accept.title = status.label;
       accept.setAttribute("aria-label", status.label);
     }
-    tr.append(id, title, num(row[2]), num(row[3]), num(row[4]), accept);
+    const keywords = cell((row[6] || []).join(", "), "kw");
+    if (row[6] && row[6].length) { // narrow screens show keywords under the title instead of a column
+      const sub = document.createElement("div");
+      sub.className = "kw-sub";
+      sub.textContent = row[6].join(", ");
+      title.appendChild(sub);
+    }
+    tr.append(id, title, keywords, num(row[2]), num(row[3]), num(row[4]), accept);
     return tr;
   }
 
@@ -194,7 +202,7 @@
 
   function unlock(data) {
     papers = data;
-    haystack = papers.map((p) => (p[1] + " " + p[0]).toLowerCase());
+    haystack = papers.map((p) => (p[1] + " " + p[0] + " " + (p[6] || []).join(" ")).toLowerCase());
     buildFilterMenu();
     gate.hidden = true;
     content.hidden = false;

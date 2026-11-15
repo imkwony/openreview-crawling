@@ -18,11 +18,12 @@ Currently available: **ICLR 2027**, **ICLR 2026**.
 python -m crawler iclr 2027   ->   iclr-2027/papers.enc.json   ->   iclr-2027/index.html (static)
 ```
 
-The data is a list of rows: `[paperId, title, rank, rankByAI, aiWritten, accept]`. It is
+The data is a list of rows: `[paperId, title, rank, rankByAI, aiWritten, accept, keywords]`. It is
 published only in encrypted form (`papers.enc.json`); a plaintext copy stays in `.cache/`.
 
 | Column | Meaning |
 |---|---|
+| Keywords | The keywords authors gave their submission. Search matches title, keywords and paper ID. Hidden on narrow screens (still searchable). |
 | Rank | Papers ordered by the average of reviewer ratings (highest first). Equal averages share a rank (1, 1, 3). Unreviewed papers are blank. |
 | Rank-by-AI, AI-Written?-by-AI | Reserved for model outputs. Empty until a model is chosen. |
 | Accept | Status per paper: ✅ accepted, ❌ rejected, 🏳️ withdrawn, 🙅‍♂️🙅‍♀️ desk-rejected, ⏳ under review. Stored as codes `A`/`R`/`W`/`D`/`U`. Click the header to show only the statuses you pick (it combines with search). |
