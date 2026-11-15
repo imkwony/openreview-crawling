@@ -21,9 +21,9 @@ def test_build_rows_shape_and_values():
     rows = build_rows(V, submissions, reviews, decisions)
     # [id, title, rank, rank_by_ai, ai_written, accept]
     assert rows == [
-        ["p1", "Beta", 1, None, None, 1],
-        ["p2", "Alpha", 2, None, None, None],
-        ["p3", "Gamma", None, None, None, 0],
+        ["p1", "Beta", 1, None, None, "A"],
+        ["p2", "Alpha", 2, None, None, "U"],
+        ["p3", "Gamma", None, None, None, "R"],
     ]
 
 
@@ -37,7 +37,7 @@ def test_ties_listed_alphabetically_and_decision_text_used():
     rows = build_rows(V, submissions, reviews, decisions)
     assert [r[0] for r in rows] == ["a", "b"]  # same rank 1, alphabetical
     assert rows[0][2] == rows[1][2] == 1
-    assert rows[0][5] == 1 and rows[1][5] is None
+    assert rows[0][5] == "A" and rows[1][5] == "U"
 
 
 def test_write_papers_outputs_only_encrypted_file_in_site_folder(tmp_path):

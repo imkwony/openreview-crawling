@@ -33,11 +33,13 @@ class OpenReviewVenue:
         return f"{self.venue_id}/-/{self.decision_name}"
 
     @property
-    def rejected_venueids(self):
+    def status_by_venueid(self):
+        """Where OpenReview files a paper once it is decided -> status code."""
         return {
-            f"{self.venue_id}/Rejected_Submission",
-            f"{self.venue_id}/Desk_Rejected_Submission",
-            f"{self.venue_id}/Withdrawn_Submission",
+            self.venue_id: "A",
+            f"{self.venue_id}/Rejected_Submission": "R",
+            f"{self.venue_id}/Withdrawn_Submission": "W",
+            f"{self.venue_id}/Desk_Rejected_Submission": "D",
         }
 
 
@@ -49,15 +51,14 @@ VENUES = {"iclr": ICLR}
 
 
 def accept_flag(venue, venueid, decision):
-    """1 = accepted, 0 = not accepted, None = unknown (still undecided)."""
-    if venueid == venue.venue_id:
-        return 1
-    if venueid in venue.rejected_venueids:
-        return 0
+    """Status code: A accepted, R rejected, W withdrawn, D desk-rejected, U under review."""
+    status = venue.status_by_venueid.get(venueid)
+    if status:
+        return status
     if decision:
         text = decision.strip().lower()
         if text.startswith("accept"):
-            return 1
+            return "A"
         if text.startswith("reject"):
-            return 0
-    return None
+            return "R"
+    return "U"
