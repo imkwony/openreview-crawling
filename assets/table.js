@@ -4,7 +4,7 @@
 (function () {
   const BATCH = 500;
   const dataUrl = document.currentScript.dataset.papers; // set on the page's <script> tag
-  const FORUM = "https://openreview.net/forum?id=";
+  const FORUM = document.currentScript.dataset.link || "https://openreview.net/forum?id="; // journals link to the DOI instead
   const $ = (sel) => document.querySelector(sel);
   const input = $("#q"), status = $("#status"), tbody = $("#rows"), more = $("#more");
   const COLS = { rank: 2, jev: 3, ai: 4 };

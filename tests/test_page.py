@@ -29,3 +29,14 @@ def test_neurips_page_shows_label_and_partial_data_note():
     assert "opted in" in html
     assert "ICLR" not in html
     assert "{{" not in html
+
+
+def test_journal_page_wording_and_doi_links():
+    from crawler.journals import JCI
+
+    html = render_page(JCI)
+    assert "Journal of Causal Inference Papers" in html
+    assert '<th class="kw">Authors</th>' in html
+    assert 'data-link="https://doi.org/"' in html
+    assert "OpenReview reviews" not in html
+    assert "{{" not in html
