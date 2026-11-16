@@ -34,6 +34,11 @@ JCI = Journal(
         "intro": "Titles and authors come from Crossref; each link opens the paper by DOI.",
         "kw_label": "Authors",
         "script_attrs": ' data-link="https://doi.org/"',
+        "date_th": (
+            '<th class="num" aria-sort="descending">'
+            '<button type="button" class="sort" data-key="date">Published'
+            '<span class="arrow" aria-hidden="true"></span></button></th>'
+        ),
     },
 )
 
@@ -45,8 +50,21 @@ def clean_title(text):
     return " ".join(html.unescape(re.sub(r"<[^>]+>", "", text)).split())
 
 
+def published_month(work):
+    """Publication month as the number YYYYMM (None if unknown).
+
+    Crossref's `issued` is the issue date (an annual issue is dated January), so the
+    online date is preferred, then the print date, then `issued`.
+    """
+    for key in ("published-online", "published-print", "issued"):
+        parts = (work.get(key) or {}).get("date-parts", [[]])[0]
+        if parts and parts[0]:
+            return parts[0] * 100 + (parts[1] if len(parts) > 1 else 1)
+    return None
+
+
 def build_rows(items):
-    """Rows in the shared table format: [doi, title, None, None, None, "A", authors]."""
+    """Rows in the shared table format plus a month: [doi, title, None, None, None, "A", authors, YYYYMM]."""
     rows = []
     for work in items:
         if work.get("type") != "journal-article" or not work.get("title"):
@@ -54,8 +72,8 @@ def build_rows(items):
         authors = [" ".join(filter(None, [a.get("given"), a.get("family")])) or a.get("name", "")
                    for a in work.get("author", [])]
         rows.append([work["DOI"], clean_title(work["title"][0]), None, None, None, "A",
-                     [a for a in authors if a]])
-    rows.sort(key=lambda r: (r[1].lower(), r[0]))
+                     [a for a in authors if a], published_month(work)])
+    rows.sort(key=lambda r: (-(r[7] or 0), r[1].lower(), r[0]))  # newest first
     return rows
 
 
@@ -72,7 +90,7 @@ def crawl(journal, cache_dir, refresh=False, get=None, sleep=random_pause):
         sleep()
         resp = get(CROSSREF.format(issn=journal.issn),
                    {"rows": PAGE_SIZE, "cursor": cursor,
-                    "select": "DOI,title,author,issued,type"})
+                    "select": "DOI,title,author,issued,published-online,published-print,type"})
         resp.raise_for_status()
         message = resp.json()["message"]
         if not message["items"]:

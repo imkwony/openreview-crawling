@@ -10,6 +10,7 @@ DEFAULT_PAGE = {
     "intro": "Ratings are collected from public OpenReview reviews. Rank is not an official result.",
     "kw_label": "Keywords",
     "script_attrs": "",
+    "date_th": "",  # journals add a sortable "Published" column
 }
 
 

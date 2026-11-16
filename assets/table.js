@@ -1,5 +1,5 @@
 // Shared ranked-papers table. Each row of papers.json is:
-// [paperId, title, rank, rankByAI, aiWritten, status, keywords]
+// [paperId, title, rank, rankByAI, aiWritten, status, keywords, publishedYYYYMM (journals only)]
 // (null = blank; status: A/R/W/D/U, see STATUS; keywords: array of strings, searched with the title)
 (function () {
   const BATCH = 500;
@@ -7,7 +7,7 @@
   const FORUM = document.currentScript.dataset.link || "https://openreview.net/forum?id="; // journals link to the DOI instead
   const $ = (sel) => document.querySelector(sel);
   const input = $("#q"), status = $("#status"), tbody = $("#rows"), more = $("#more");
-  const COLS = { rank: 2, jev: 3, ai: 4 };
+  const COLS = { rank: 2, jev: 3, ai: 4, date: 7 };
   const filterBtn = $("#accept-filter-btn"), filterMenu = $("#accept-filter");
   // Accept column status codes -> what to show. Order here is the filter menu order.
   const STATUS = {
@@ -20,7 +20,12 @@
   const STATUS_ORDER = Object.keys(STATUS);
 
   let papers = [], haystack = [], shown = [], next = 0, timer = 0;
-  let sortKey = "rank", sortDir = 1;
+  const hasDate = !!$("button.sort[data-key=date]"); // journal pages: a Published column, newest first
+  let sortKey = hasDate ? "date" : "rank", sortDir = hasDate ? -1 : 1;
+  if (hasDate) {
+    document.querySelectorAll("thead th[aria-sort]").forEach((th) => th.setAttribute("aria-sort", "none"));
+    $("button.sort[data-key=date]").closest("th").setAttribute("aria-sort", "descending");
+  }
   let available = [], selected = new Set(); // statuses present in the data / currently shown
 
   const isAll = () => available.every((c) => selected.has(c));
@@ -72,7 +77,10 @@
       sub.textContent = row[6].join(", ");
       title.appendChild(sub);
     }
-    tr.append(id, title, keywords, num(row[2]), num(row[3]), num(row[4]), accept);
+    const month = row[7] ? Math.floor(row[7] / 100) + "-" + String(row[7] % 100).padStart(2, "0") : "";
+    tr.append(id, title, keywords);
+    if (hasDate) tr.append(cell(month, "num"));
+    tr.append(num(row[2]), num(row[3]), num(row[4]), accept);
     return tr;
   }
 
