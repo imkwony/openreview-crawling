@@ -86,7 +86,12 @@ def CLeaR(year):
     return OpenReviewVenue(prefix="cclear.cc/CLeaR", name="CLeaR", year=year, note=_ACCEPTED_ONLY_NOTE)
 
 
-VENUES = {"iclr": ICLR, "neurips": NeurIPS, "icml": ICML, "uai": UAI, "clear": CLeaR}
+def COLM(year):
+    return OpenReviewVenue(prefix="colmweb.org/COLM", name="COLM", year=year,
+                           note=" OpenReview lists only accepted papers for this conference, so this is not every submission.")
+
+
+VENUES = {"iclr": ICLR, "neurips": NeurIPS, "icml": ICML, "uai": UAI, "clear": CLeaR, "colm": COLM}
 
 
 def accept_flag(venue, venueid, decision):

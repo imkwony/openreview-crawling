@@ -54,7 +54,7 @@ def test_neurips_status_and_decision_text():
 def test_registry_and_partial_data_note():
     from crawler.venues import NeurIPS, VENUES
 
-    assert set(VENUES) == {"iclr", "neurips", "icml", "uai", "clear"}
+    assert set(VENUES) == {"iclr", "neurips", "icml", "uai", "clear", "colm"}
     assert "opted in" in NeurIPS(2025).note  # NeurIPS only publishes some papers
     assert V.note == ""  # ICLR publishes everything: no note
 
