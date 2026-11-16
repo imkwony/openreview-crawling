@@ -71,7 +71,22 @@ def ICML(year):
                            rating_field="overall_recommendation", note=_OPT_IN_NOTE)
 
 
-VENUES = {"iclr": ICLR, "neurips": NeurIPS, "icml": ICML}
+# Only accepted papers are public here, and there are no public reviews or decisions.
+_ACCEPTED_ONLY_NOTE = (
+    " OpenReview lists only accepted papers for this conference and has no public"
+    " reviews, so Rank is empty."
+)
+
+
+def UAI(year):
+    return OpenReviewVenue(prefix="auai.org/UAI", name="UAI", year=year, note=_ACCEPTED_ONLY_NOTE)
+
+
+def CLeaR(year):
+    return OpenReviewVenue(prefix="cclear.cc/CLeaR", name="CLeaR", year=year, note=_ACCEPTED_ONLY_NOTE)
+
+
+VENUES = {"iclr": ICLR, "neurips": NeurIPS, "icml": ICML, "uai": UAI, "clear": CLeaR}
 
 
 def accept_flag(venue, venueid, decision):
