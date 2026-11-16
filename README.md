@@ -7,6 +7,8 @@ reviewer ratings) and whether they were accepted.
 Currently available: **ICLR 2027**, **ICLR 2026**, **ICML 2026**, **NeurIPS 2025**,
 **UAI 2026/2025**, **CLeaR 2026/2025**, **COLM 2026** (accepted papers only, with reviews). UAI and CLeaR expose only accepted papers and no
 reviews on OpenReview, so their pages have no ranks.
+Journal: **Journal of Causal Inference** (not on OpenReview; the list comes from
+[Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/), run `python -m crawler jci`).
 
 NeurIPS and ICML keep submissions private, so their pages list only accepted papers and
 rejected papers whose authors opted in to public release (each page says so). NeurIPS 2026
